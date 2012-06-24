@@ -1,0 +1,18 @@
+Types
+====
+
+Values: bool, char, num, string, list<type>, tuple<type, ...>, tree<type, nary>
+Functions: (num -> (num -> num)) ....
+
+Core
+====
+
+compose
+
+Constructs
+=========
+
+lambda[(a, num, ...), (b, num, ...)](num, ...){
+	...
+}
+
