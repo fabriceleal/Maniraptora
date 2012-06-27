@@ -1,1 +1,36 @@
-// Grammar for the maniraptora lang
+
+
+statements=statement+
+
+statement=e:expression wsnl* ";" wsnl*
+ { return e; }
+
+expression=number / identifier / string
+
+number=d:validdigit+
+ { return { tag:"number", value:new Number(d.join('')) }}
+
+validchar=[a-zA-Z0-9]
+
+validdigit=[0-9]
+
+validstrchar=(!"\"" c:.)
+ { return c;}
+
+string="\"" v:validstrchar* "\""
+ { return {tag:"string", value:v.join('') }}
+
+identifier=c:validchar+
+ { return { tag:"identifier", value:c.join('') }}
+
+wsnl=
+		ws 
+   /  nl 
+
+ws=[ \t]
+
+nl=
+    "\r\n" 
+  /  "\r" 
+  /  "\n"
+
