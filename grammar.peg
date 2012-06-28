@@ -78,28 +78,26 @@ list="[" wsnl* "]"
 
 // TYPE LITERALS
 
-generics=
-	"<" ">"
-
 type_varargs=wsnl+ t:type
 	{ return t; }
+
+gen_varargs="," wsnl* t:type
+
+generics=
+	"<" wsnl* h:type wsnl* o:gen_varargs wsnl* ">"
+   { return { tag:"generics", value:[h].concat(o) }; }
 
 type=
 	"bool" 
 	{ return { tag:"basetype", name:"bool"}; } 
-
 	/ "num" 
 	{ return { tag:"basetype", name:"num"}; } 
-
 	/ "string" 
 	{ return { tag:"basetype", name:"string"}; } 
-
-	/ "list" 
-	{ return { tag:"basetype", name:"list"}; } 
-
-	/ "tuple" 
-	{ return { tag:"basetype", name:"tuple"}; } 
-
+	/ "list" wsnl* g:generics
+	{ return { tag:"basetype", name:"list", args:g }; } 
+	/ "tuple" wsnl* g:generics
+	{ return { tag:"basetype", name:"tuple", args:g}; } 
 	/ "(" wsnl* l:type o:type_varargs* wsnl* "->" wsnl* r:type wsnl* ")"
 	{
 		return (function rec( input ){
@@ -107,7 +105,7 @@ type=
 				return { tag:"arrowtype", left:input[0], right:r};
 			}
 			
-			return { tag:"arrowtype", left:input[0], right:rec(input.slice(1)) };
+			return { tag:"arrowtype", left:input[0], right:rec( input.slice(1) ) };
 		})([ l ].concat( o ));
 	}
 

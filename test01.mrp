@@ -36,3 +36,6 @@ let doubleLs := lambda[(ls)][]{
 
 (bool string num -> num);
 
+list<string>;
+tuple<string,string,bool,num,(num -> num)>;
+
