@@ -1,3 +1,38 @@
 0;
+
+0.2;
+
+12312.4353;
+
 x;
+
+xX5;
+
 "teste asd ljdlkas 90812390123 $%&/$%&%&$%";
+
+let x := 123;
+
+let a := let b := let c := 1;
+
+[1, 2, 3, 4, 5];
+
+let b := ["asd", let z := "uno!" ];
+
+add 1 # 2;
+
+factorial len [1, 2, 3];
+
+reduce _ # _ # [1, 2, 3];
+
+lambda[(x, isEven), (y, isEven)][isEven]{
+	add x # y;
+};
+
+let doubleLs := lambda[(ls)][]{
+	map Double # ls;
+};
+
+(bool -> (string -> (num -> num)));
+
+(bool string num -> num);
+
