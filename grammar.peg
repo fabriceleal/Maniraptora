@@ -1,7 +1,7 @@
 
 
-statements=statement+
-
+statements=ss:statement+
+ { return { tag:"code", value:ss} }
 
 statement=e:expression wsnl* ";" wsnl*
  { return e; }
@@ -36,17 +36,17 @@ application = fun:valid_callable wsnl+ arg:valid_arg wsnl* tail:application_arg*
 
 // LET
 
-let_form = "let" wsnl+ i:identifier wsnl* ":=" wsnl* e:expression
- { return { tag:"let", left:i, right:e}; }
+let_form = "let" wsnl* t:type? wsnl* i:identifier wsnl* ":=" wsnl* e:expression
+ { return { tag:"let", destiny:i, type:(t ? t: false), expression:e}; }
 
 // LITERALS
 
-number=d:validdigit+ "."? d2:validdigit*
- { return { tag:"number", value:new Number( d.join('') + '.' + d2.join('')) }; }
+number=s:[+-]? d:validdigit+ "."? d2:validdigit*
+ { return { tag:"number", value:new Number( s + d.join('') + '.' + d2.join('')) }; }
 
 
 string="\"" v:validstrchar* "\""
- { return {tag:"string", value:v.join('') }; }
+ { return { tag:"string", value:v.join('') }; }
 
 
 identifier=c:valid1stchar tail:validchar*
@@ -62,9 +62,9 @@ lambda_form="lambda" wsnl* pars:list_of_definitions wsnl* out:list_of_out_valida
 // tuples
 
 tuple="(" wsnl* ")"
-   { return { tag:"tag", value:[] }; }
+   { return { tag:"tuple", value:[] }; }
    / "(" wsnl* head:expression wsnl* tail:collection_item* ")"
-	{ return { tag:"tag", value:[head].concat(tail) }; }
+	{ return { tag:"tuple", value:[head].concat(tail) }; }
 
 // lists
 
@@ -82,10 +82,14 @@ type_varargs=wsnl+ t:type
 	{ return t; }
 
 gen_varargs="," wsnl* t:type
+   { return t; }
+
+generic="<" wsnl* h:type wsnl* ">"
+	{ return h; }
 
 generics=
-	"<" wsnl* h:type wsnl* o:gen_varargs wsnl* ">"
-   { return { tag:"generics", value:[h].concat(o) }; }
+	"<" wsnl* h:type wsnl* o:gen_varargs* wsnl* ">"
+   { return [h].concat(o); }
 
 type=
 	"bool" 
@@ -94,10 +98,12 @@ type=
 	{ return { tag:"basetype", name:"num"}; } 
 	/ "string" 
 	{ return { tag:"basetype", name:"string"}; } 
-	/ "list" wsnl* g:generics
-	{ return { tag:"basetype", name:"list", args:g }; } 
+
+	/ "list" wsnl* g:generic
+	{ return { tag:"generictype", name:"list", args:g }; } 
 	/ "tuple" wsnl* g:generics
-	{ return { tag:"basetype", name:"tuple", args:g}; } 
+	{ return { tag:"generictype", name:"tuple", args:g}; } 
+
 	/ "(" wsnl* l:type o:type_varargs* wsnl* "->" wsnl* r:type wsnl* ")"
 	{
 		return (function rec( input ){

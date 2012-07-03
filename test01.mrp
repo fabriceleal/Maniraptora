@@ -24,7 +24,7 @@ factorial len [1, 2, 3];
 
 reduce _ # _ # [1, 2, 3];
 
-lambda[(x, isEven), (y, isEven)][isEven]{
+lambda[(x, num, isEven), (y, num, isEven)][num, isEven]{
 	add x # y;
 };
 
@@ -32,10 +32,21 @@ let doubleLs := lambda[(ls)][]{
 	map Double # ls;
 };
 
+let h := head [1, 2, 3];
+
+let t := tail [1, 2, 3];
+
 (bool -> (string -> (num -> num)));
 
 (bool string num -> num);
 
 list<string>;
-tuple<string,string,bool,num,(num -> num)>;
+
+tuple<string, string, num, (num -> num)>;
+
+let (num -> num) neg := lambda [(x, num)][num]{
+	mult -1 # x;
+};
+
+
 
