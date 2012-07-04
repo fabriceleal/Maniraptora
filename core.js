@@ -19,10 +19,6 @@
 	};
 
 
-	var lambdaToCoreNotation = function(expr){	
-		
-	};
-
 	var sliceArg = function( c ){
 		return  {
 			args: 				c.args.slice(1),

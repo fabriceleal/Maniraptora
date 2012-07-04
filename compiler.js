@@ -23,6 +23,7 @@ function compile(stuff){
 		}
 */
 
+	// TODO This function will be needed in the final compilation itself.
 	var compileCoreNotationToJs = function(coreNotation, arguments){
 		var ret = undefined;
 		try{
@@ -60,6 +61,14 @@ function compile(stuff){
 			console.log(JSON.stringify(arguments, null, 3));
 			throw new Error('Error converting core notation to js: ' + e);
 		}		
+	};
+
+	var lambdaToCoreNotation = function(expr){		
+		return {
+				args:					expr.pars.value.map(function(a){ return { name: undefined, validators: undefined }; }), 
+				body:					compile(true)(expr.code), // Compile body, top level
+				out_validators:	expr.out.value.map(compile(false)); // Compile out validators
+		};
 	};
 	
 	var compileString = function(is_top_level){
@@ -104,7 +113,11 @@ function compile(stuff){
 
 	var compileFunction = function(is_top_level){
 		return function(expr){
-			return '';
+			var ret = JSON.stringify(core.lambdaToCoreNotation(expr));
+			if(is_top_level){
+				ret = "__ret = " + ret + ";\n";
+			}
+			return ret;
 		};
 	};
 
