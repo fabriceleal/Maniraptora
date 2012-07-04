@@ -1,29 +1,15 @@
 (function(){
 	var core = require('./core.js');
 
-/*
-function compile(stuff){
-			if(stuff.args.length === 0){
-				return stuff.body;
-			}
-			if(stuff.pars[0] === '_'){
-				return '(function(){' + 
-							' return function('  + stuff.args[0] + '){ ' +
-								' return (' + compile({ args: stuff.args.slice(1), body: stuff.body, pars:stuff.pars.slice(1)})  + '); ' +
-							' }; ' + 
-						 '})()'
-				//---
-			} else {
-				return '(function(){' +
-							' var ' + stuff.args[0] + ' = ' + stuff.pars[0] + ';' +
-							' return (' + compile({ args: stuff.args.slice(1), body: stuff.body, pars:stuff.pars.slice(1)})  + '); ' + 
-						 '})()';
-				//---
-			}			
-		}
-*/
+	var sliceArg = function( c ){
+		return  {
+			args: 				c.args.slice(1),
+			body: 				c.body,
+			out_validators:	c.out_validators
+		};
+	}
 
-	// TODO This function will be needed in the final compilation itself.
+	// This function will be needed in the final compilation itself.
 	var compileCoreNotationToJs = function(coreNotation, arguments){
 		var ret = undefined;
 		try{
@@ -40,7 +26,7 @@ function compile(stuff){
 					return 	'(function(){ \n' + 
 									'return (\n' + 
 										'function(' + c.args[0].name + '){\n' + 
-											'return (' + __compileCoreNotationToJs( core.sliceArg(c), a.slice(1)) + ');' + 
+											'return (' + __compileCoreNotationToJs( sliceArg(c), a.slice(1)) + ');' + 
 										'\n}\n' +
 									')\n;' + 
 								'})()';
@@ -48,7 +34,7 @@ function compile(stuff){
 				} else {
 					return '(function(){' +
 								' var ' + c.args[0].name + ' = ' + compile(false)( a[0] ) + ';' +
-								' return (' + __compileCoreNotationToJs( core.sliceArg(c), a.slice(1)) + '); ' + 
+								' return (' + __compileCoreNotationToJs( sliceArg(c), a.slice(1)) + '); ' + 
 							 '})()';
 					//---
 
@@ -67,7 +53,7 @@ function compile(stuff){
 		return {
 				args:					expr.pars.value.map(function(a){ return { name: undefined, validators: undefined }; }), 
 				body:					compile(true)(expr.code), // Compile body, top level
-				out_validators:	expr.out.value.map(compile(false)); // Compile out validators
+				out_validators:	expr.out.value.map(compile(false)) // Compile out validators
 		};
 	};
 	
@@ -113,12 +99,37 @@ function compile(stuff){
 
 	var compileFunction = function(is_top_level){
 		return function(expr){
-			var ret = JSON.stringify(core.lambdaToCoreNotation(expr));
+			var ret = JSON.stringify(lambdaToCoreNotation(expr));
 			if(is_top_level){
 				ret = "__ret = " + ret + ";\n";
 			}
 			return ret;
 		};
+	};
+
+	var compileWithCore = function(expr){
+		var ret = '';
+
+		ret += '(function(){\n';
+
+		var to_include = {
+				"compileCoreNotationToJs": compileCoreNotationToJs,
+				"compile": compile,
+				"compileScalar" : compileScalar,
+				"sliceArg" : sliceArg
+		};
+
+		for (var k in to_include) {
+			ret += 'var ' + k + ' = ' + to_include[k].toString() + ';\n';
+		}
+
+		for(var k in core.core){
+			ret += 'var ' + k + ' = ' + JSON.stringify(core.core[k]) +';\n';
+		}
+		ret += 	'return ' + compile(true)(expr) + ';\n';
+		ret += '})();\n';
+
+		return ret;
 	};
 
 	var compile = function(is_top_level){
@@ -143,13 +154,31 @@ function compile(stuff){
 					return compileCollection(is_top_level)(expr);
 				case "lambda":
 					return compileFunction(is_top_level)(expr);
+				case "application":
+					
+					// a) Compile expr.fun
+					var fun = compile(false)(expr.fun);
+					// b) Eval args (left -> right)
+					//var args = expr.args.map(compile(false));
+			
+					// c) Use the result from a) and b), pass through compileCoreNotationToJs
+					//var ret = '(compileCoreNotationToJs)(' + fun + ', [' + args.join(', ') + '])';
+					var ret = '(compileCoreNotationToJs)(' + fun + ', ' + JSON.stringify(expr.args) + ')';
+
+					if(is_top_level){
+						ret = '__ret = ' + ret + ';\n';
+					}
+					return ret;
+				case "basetype":
+					return expr;
 			}
-	
+			console.log("---");
 			console.log(JSON.stringify(expr, null, 3));
 			throw new Error('Not implemented!');
 		};
 	};
 
+	exports.lambdaToCoreNotation = lambdaToCoreNotation;
 	exports.compileCoreNotationToJs = compileCoreNotationToJs;
-	exports.compile = compile(true);
+	exports.compile = compileWithCore; //compile(true);
 })();
