@@ -20,11 +20,14 @@ expression =
 		/ identifier
 
 // FUNCTION APPLICATION
-
+/*
 ignore_arg = "_"
  { return { tag:"ignore_arg" }}
 
 valid_arg = ignore_arg / expression
+*/
+
+valid_arg = expression
 
 application_arg="#" wsnl* arg:valid_arg wsnl*
   { return arg;}

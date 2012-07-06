@@ -40,8 +40,6 @@ module.exports = (function(){
         "statements": parse_statements,
         "statement": parse_statement,
         "expression": parse_expression,
-        "ignore_arg": parse_ignore_arg,
-        "valid_arg": parse_valid_arg,
         "application_arg": parse_application_arg,
         "valid_callable": parse_valid_callable,
         "application": parse_application,
@@ -233,39 +231,6 @@ module.exports = (function(){
         return result0;
       }
       
-      function parse_ignore_arg() {
-        var result0;
-        var pos0;
-        
-        pos0 = pos;
-        if (input.charCodeAt(pos) === 95) {
-          result0 = "_";
-          pos++;
-        } else {
-          result0 = null;
-          if (reportFailures === 0) {
-            matchFailed("\"_\"");
-          }
-        }
-        if (result0 !== null) {
-          result0 = (function(offset) { return { tag:"ignore_arg" }})(pos0);
-        }
-        if (result0 === null) {
-          pos = pos0;
-        }
-        return result0;
-      }
-      
-      function parse_valid_arg() {
-        var result0;
-        
-        result0 = parse_ignore_arg();
-        if (result0 === null) {
-          result0 = parse_expression();
-        }
-        return result0;
-      }
-      
       function parse_application_arg() {
         var result0, result1, result2, result3, result4;
         var pos0, pos1;
@@ -289,7 +254,7 @@ module.exports = (function(){
             result2 = parse_wsnl();
           }
           if (result1 !== null) {
-            result2 = parse_valid_arg();
+            result2 = parse_expression();
             if (result2 !== null) {
               result3 = [];
               result4 = parse_wsnl();
@@ -353,7 +318,7 @@ module.exports = (function(){
             result1 = null;
           }
           if (result1 !== null) {
-            result2 = parse_valid_arg();
+            result2 = parse_expression();
             if (result2 !== null) {
               result3 = [];
               result4 = parse_wsnl();

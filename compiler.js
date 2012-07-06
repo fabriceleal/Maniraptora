@@ -1,6 +1,6 @@
 (function(){
 	var core = require('./core.js');
-
+/*
 	var sliceArg = function( c ){
 		return  {
 			args: 				c.args.slice(1),
@@ -56,7 +56,7 @@
 				out_validators:	expr.out.value.map(compile(false)) // Compile out validators
 		};
 	};
-	
+	*/
 	var compileString = function(is_top_level){
 		return function(scalar){
 			var ret = "\"" + scalar.value.toString() + "\"";
@@ -112,7 +112,7 @@
 
 		ret += '(function(){\n';
 
-		var to_include = {
+		/*var to_include = {
 				"compileCoreNotationToJs": compileCoreNotationToJs,
 				"compile": compile,
 				"compileScalar" : compileScalar,
@@ -121,7 +121,7 @@
 
 		for (var k in to_include) {
 			ret += 'var ' + k + ' = ' + to_include[k].toString() + ';\n';
-		}
+		}*/
 
 		for(var k in core.core){
 			ret += 'var ' + k + ' = ' + JSON.stringify(core.core[k]) +';\n';
@@ -154,23 +154,7 @@
 					return compileCollection(is_top_level)(expr);
 				case "lambda":
 					return compileFunction(is_top_level)(expr);
-				case "application":
-					
-					// a) Compile expr.fun
-					var fun = compile(false)(expr.fun);
-					// b) Eval args (left -> right)
-					//var args = expr.args.map(compile(false));
-			
-					// c) Use the result from a) and b), pass through compileCoreNotationToJs
-					//var ret = '(compileCoreNotationToJs)(' + fun + ', [' + args.join(', ') + '])';
-					var ret = '(compileCoreNotationToJs)(' + fun + ', ' + JSON.stringify(expr.args) + ')';
-
-					if(is_top_level){
-						ret = '__ret = ' + ret + ';\n';
-					}
-					return ret;
-				case "basetype":
-					return expr;
+				
 			}
 			console.log("---");
 			console.log(JSON.stringify(expr, null, 3));

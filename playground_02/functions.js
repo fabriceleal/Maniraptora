@@ -62,15 +62,8 @@ FunctionObj.prototype.bindArg = function( arg ){
 		//console.log(fun);
 		fo.body.body = fun;*/
 
-		/*(function(fun){
-			fo.body = this;
-			this.body = fun;
-		})(fo.body);*/
-
-		function k(){ return 0; };
-
 		// Normal function objs
-
+		var k = function(){ return 0; };
 		var inner = new FunctionObj(this.arg, k, this.in_vals, this.out_vals);
 		var ret = new FunctionObj(this.body.arg, inner, this.body.in_vals, this.body.out_vals);
 
@@ -78,6 +71,9 @@ FunctionObj.prototype.bindArg = function( arg ){
 		ret.parent = inner;
 		inner.parent = undefined;
 		inner.body = new FunctionElem(ret, this.body.body.fun);
+
+		/**/
+		
 		
 		return ret;
 	}
