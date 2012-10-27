@@ -1,144 +1,81 @@
+tree = n:node WS
+  		{ return n; }
+
+node = n:keyword WS id:id? WS cll:classList? WS 
+		al:attrList? WS "{" WS i:tree* "}" WS
+  		{ 
+			return { 
+				tag:"node", 
+				id:id?id:null,
+				classes:cll?cll:[],
+				name:n, 
+				attr:(al?al:[]), 
+				inner:i
+			}; 
+		}
+	/	n:keyword WS id:id? WS cll:classList? WS 
+		al:attrList? WS "=" WS s:(strLiteral/tree)
+  		{
+			return { 
+				tag:"node", 
+				id:id?id:null,
+				classes:cll?cll:[],
+				name:n, 
+				attr:(al?al:[]), 
+				inner:s
+			}; 
+		}
+	/	n:keyword WS id:id? WS cll:classList? WS 
+		al:attrList? WS
+		{ 
+			return {
+				tag:"node", 
+				id:id?id:null,
+				classes:cll?cll:[],
+				name:n, 
+				attr:(al?al:[]), 
+				inner:[]
+			}; 
+		}
+
+id = "#" id:keyword
+	{ return { tag:"id", name:id} }
+	/	"#" s:strLiteral
+	{ return { tag:"id", name:s} }
+
+classList=h:classN t:(WS classN)*
+	{ return [h].concat(t.map(function(e){ return e[1]}))}
+
+classN="." id:keyword
+	{ return { tag:"class", name:id} }
+
+attrList="[" WS a:attr+ "]"
+		{ return a; }
+attr = a:keyword WS "=" WS s:strLiteral WS
+		{ return { tag:"attr", name:a, value:s }}
+
+keyword=h:valid1stchar t:validchar*
+		{ return h + t.join(''); }
 
 
-statements=ss:statement+
- { return { tag:"code", value:ss} }
-
-statement=e:expression wsnl* ";" wsnl*
- { return e; }
-
-
-expression = 
-		// Maniraptora's constructs
-		let_form 
-		/ lambda_form 
-		// ---
-		/ type 
-		// ---
-		/ application 
-		// Literals
-		/ number / string / list / tuple
-		/ identifier
-
-// FUNCTION APPLICATION
-/*
-ignore_arg = "_"
- { return { tag:"ignore_arg" }}
-
-valid_arg = ignore_arg / expression
-*/
-
-valid_arg = expression
-
-application_arg="#" wsnl* arg:valid_arg wsnl*
-  { return arg;}
-
-valid_callable=lambda_form / identifier
-
-application = fun:valid_callable wsnl+ arg:valid_arg wsnl* tail:application_arg*
-  { return { tag:"application", fun:fun, args:[arg].concat(tail) }; }
-
-// LET
-
-let_form = "let" wsnl* t:type? wsnl* i:identifier wsnl* ":=" wsnl* e:expression
- { return { tag:"let", destiny:i, type:(t ? t: false), expression:e}; }
-
-// LITERALS
-
-number=s:[+-]? d:validdigit+ "."? d2:validdigit*
- { return { tag:"number", value:new Number( s + d.join('') + '.' + d2.join('')) }; }
-
-
-string="\"" v:validstrchar* "\""
- { return { tag:"string", value:v.join('') }; }
-
-
-identifier=c:valid1stchar tail:validchar*
- { return { tag:"identifier", value:c + tail.join('') }; }
-
-// functions
-
-list_of_definitions=list
-list_of_out_validators=list
-lambda_form="lambda" wsnl* pars:list_of_definitions wsnl* out:list_of_out_validators wsnl* "{" wsnl* code:statements wsnl* "}"
-   { return { tag:"lambda", pars:pars, out:out, code:code }; }
-
-// tuples
-
-tuple="(" wsnl* ")"
-   { return { tag:"tuple", value:[] }; }
-   / "(" wsnl* head:expression wsnl* tail:collection_item* ")"
-	{ return { tag:"tuple", value:[head].concat(tail) }; }
-
-// lists
-
-collection_item="," wsnl* e:expression wsnl*
-  { return e; }
-
-list="[" wsnl* "]"
-	{ return { tag:"list", value:[] }; }
-  /  "[" wsnl* head:expression wsnl* tail:collection_item* "]"
-	{ return { tag:"list", value:[head].concat(tail) }; }
-
-// TYPE LITERALS
-
-type_varargs=wsnl+ t:type
-	{ return t; }
-
-gen_varargs="," wsnl* t:type
-   { return t; }
-
-generic="<" wsnl* h:type wsnl* ">"
-	{ return h; }
-
-generics=
-	"<" wsnl* h:type wsnl* o:gen_varargs* wsnl* ">"
-   { return [h].concat(o); }
-
-type=
-	"bool" 
-	{ return { tag:"basetype", name:"bool"}; } 
-	/ "num" 
-	{ return { tag:"basetype", name:"num"}; } 
-	/ "string" 
-	{ return { tag:"basetype", name:"string"}; } 
-
-	/ "list" wsnl* g:generic
-	{ return { tag:"generictype", name:"list", args:g }; } 
-	/ "tuple" wsnl* g:generics
-	{ return { tag:"generictype", name:"tuple", args:g}; } 
-
-	/ "(" wsnl* l:type o:type_varargs* wsnl* "->" wsnl* r:type wsnl* ")"
-	{
-		return (function rec( input ){
-			if(input.length === 1){
-				return { tag:"arrowtype", left:input[0], right:r};
-			}
-			
-			return { tag:"arrowtype", left:input[0], right:rec( input.slice(1) ) };
-		})([ l ].concat( o ));
-	}
-
+strLiteral='"' s:validstrchar* '"' WS
+		{ return s.join(''); }
 
 // CHAR RANGES
 
 validstrchar=(!"\"" c:.)
- { return c;}
+		{ return c;}
 
 
 valid1stchar=[a-zA-Z]
-validchar=[a-zA-Z0-9]
+validchar=[a-zA-Z0-9\-_]
 
 
 validdigit=[0-9]
 
-wsnl=
-		ws 
-   /  nl 
+WS = wsnl*
 
+wsnl= ws / nl 
 ws=[ \t]
-
-nl=
-    "\r\n" 
-  /  "\r" 
-  /  "\n"
+nl= "\r\n" / "\r" / "\n"
 

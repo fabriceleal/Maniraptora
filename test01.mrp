@@ -1,52 +1,32 @@
-0;
+html [xmlns="http://www.w3.org/1999/xhtml"] {
+	head {
+		meta[http-equiv="content-type" content="text/html; charset=utf-8"]
+		title="Fabrice Leal"
+		meta[name="keywords" content=""]
+		meta[name="description" content=""]
+		link[href="default.css" rel="stylesheet" type="text/css"]
+		script[type="text/javascript"]
+	}
+	body {
+		div #logo-wrap = div #logo = h1 = a[href="index.html"] = "Fabrice Leal"
 
-0.2;
+		div #header = div #menu = ul {
+			li = a[href="index.html"] = "Homepage"
+			li .current_page_item = a[href="project.html"] = "Projects"
+			li = a[href="github.html"] = "Github"
+			li .last = a[href="links.html"] = "Links"
+		}
 
-12312.4353;
+		div #wrapper = div #wrapper-btm = div #page {
+			div #content {
 
-x;
+			}
+			div[style="clear: both;"] = "&nbsp;"
+		}
 
-xX5;
-
-"teste asd ljdlkas 90812390123 $%&/$%&%&$%";
-
-let x := 123;
-
-let a := let b := let c := 1;
-
-[1, 2, 3, 4, 5];
-
-let b := ["asd", let z := "uno!" ];
-
-add 1 # 2;
-
-factorial len [1, 2, 3];
-
-reduce _ # _ # [1, 2, 3];
-
-lambda[(x, num, isEven), (y, num, isEven)][num, isEven]{
-	add x # y;
-};
-
-let doubleLs := lambda[(ls)][]{
-	map Double # ls;
-};
-
-let h := head [1, 2, 3];
-
-let t := tail [1, 2, 3];
-
-(bool -> (string -> (num -> num)));
-
-(bool string num -> num);
-
-list<string>;
-
-tuple<string, string, num, (num -> num)>;
-
-let (num -> num) neg := lambda [(x, num)][num]{
-	mult -1 # x;
-};
-
-
-
+		div #footer = div #footer-wrap {
+			p #lastupdated = "Last updated on 27-10-2012"
+			p #legal = "Design by Free CSS Templates"
+		}
+	}
+}
