@@ -16,6 +16,9 @@
 	var compileWithCore = function(tree, core) {
 		var s = '';
 
+		if(typeof tree === 'string')
+			return tree;
+
 		s += '<' + tree.name; 
 		// Attributes
 
@@ -41,8 +44,8 @@
 		if(content) {
 			if(content instanceof Array) {
 				s += content.map(compileWithCoreCurry(core)).join('');
-			} else if (typeof content === 'string') {
-				s += content;
+			//} else if (typeof content === 'string') {
+			//	s += content;
 			} else {
 				s += compileWithCore(content, core);
 			}

@@ -2,7 +2,7 @@ tree = n:node WS
   		{ return n; }
 
 node = n:keyword WS id:id? WS cll:classList? WS 
-		al:attrList? WS "{" WS i:tree* "}" WS
+		al:attrList? WS "{" WS i:(strLiteral/tree)* "}" WS
   		{ 
 			return { 
 				tag:"node", 
