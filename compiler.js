@@ -10,8 +10,8 @@
 	var compileWithCoreCurry = function(core) {
 		return function(tree){
 			return compileWithCore(tree, core);
-		}
-	}
+		};
+	};
 
 	var compileWithCore = function(tree, core) {
 		var s = '';
@@ -38,7 +38,7 @@
 			}).join('');
 		}
 
-		s += '>';
+		s += '>\r\n';
 
 		var content = tree.inner;
 		if(content) {
@@ -51,7 +51,7 @@
 			}
 		}
 
-		s += '</' + tree.name + '>';
+		s += '</' + tree.name + '>\r\n';
 
 		return s;
 	};

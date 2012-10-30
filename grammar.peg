@@ -2,7 +2,7 @@ tree = n:node WS
   		{ return n; }
 
 node = n:keyword WS id:id? WS cll:classList? WS 
-		al:attrList? WS "{" WS i:(strLiteral/tree)* "}" WS
+		al:attrList? WS "{" WS i:(strLiteral/tree/dataRef)* "}" WS
   		{ 
 			return { 
 				tag:"node", 
@@ -14,7 +14,7 @@ node = n:keyword WS id:id? WS cll:classList? WS
 			}; 
 		}
 	/	n:keyword WS id:id? WS cll:classList? WS 
-		al:attrList? WS "=" WS s:(strLiteral/tree)
+		al:attrList? WS "=" WS s:(strLiteral/tree/dataRef)
   		{
 			return { 
 				tag:"node", 
@@ -37,6 +37,17 @@ node = n:keyword WS id:id? WS cll:classList? WS
 				inner:[]
 			}; 
 		}
+
+varName = f:valid1stchar t:validchar*
+		{ return { tag:'varname', name:f + t.join('') } }
+
+_dataRefTail = t:("." h:varName)*
+		{ return t.map(function(e){ return e[1];}) }
+
+dataRef= "$" h:varName t:_dataRefTail WS
+		{ return { tag:'ref', head:h, tail:t} }
+		/	"$" v:varName WS
+		{ return v }
 
 id = "#" id:keyword
 	{ return { tag:"id", name:id} }

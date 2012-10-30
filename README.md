@@ -1,1 +1,4 @@
-A strongly-typed functional language that compiles to Javascript.
+Maniraptora
+===========
+
+A static html page generator.
