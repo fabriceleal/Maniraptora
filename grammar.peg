@@ -1,3 +1,23 @@
+start = (definition / requires / expression)+
+
+expression=tree
+
+requires = "@require" FWS WS f:filename+
+		{ return { tag:"require", files:f }; }
+
+definition = 
+		pb:("@public" FWS WS)? "@view" FWS WS 
+		n:keyword WS p:parameter_list? d:tree
+		{ return { tag:"view", name:n, ispublic:(pb?true:false), parameters:(p?p:[]), def:d}; }
+
+parameter_list_a=l:(keyword WS)+
+		{ return l.map(function(e){ return e[1]}) }
+
+parameter_list="(" WS ")" WS
+		{ return []; }
+	/	"(" WS l:parameter_list_a ")" WS
+		{ return l;}
+
 tree = n:node WS
   		{ return n; }
 
@@ -62,12 +82,22 @@ classN="." id:keyword
 
 attrList="[" WS a:attr+ "]"
 		{ return a; }
+
 attr = a:keyword WS "=" WS s:strLiteral WS
 		{ return { tag:"attr", name:a, value:s }}
 
+// 
+filename = '"' f:(!'"' filename_chars_wsnl)+ '"' WS
+		{ return f.map(function(e){ return e[1]; }).join('') }
+		/	f:filename_chars+ WS
+		{ return f.join(''); }
+
+filename_chars=[a-zA-Z0-9\.\\\/_]
+
+filename_chars_wsnl=wsnl / filename_chars
+
 keyword=h:valid1stchar t:validchar*
 		{ return h + t.join(''); }
-
 
 strLiteral='"' s:validstrchar* '"' WS
 		{ return s.join(''); }
@@ -77,13 +107,12 @@ strLiteral='"' s:validstrchar* '"' WS
 validstrchar=(!"\"" c:.)
 		{ return c;}
 
-
 valid1stchar=[a-zA-Z]
 validchar=[a-zA-Z0-9\-_]
 
-
 validdigit=[0-9]
 
+FWS = wsnl
 WS = wsnl*
 
 wsnl= ws / nl 

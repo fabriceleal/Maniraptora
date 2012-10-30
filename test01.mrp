@@ -1,6 +1,6 @@
-require index.mrp 404.mrp github.mrp projects.mrp links.mrp
+@require index.mrp 404.mrp github.mrp projects.mrp links.mrp
 
-view custom-header
+@view custom-header ()
 		div #header = div #menu = ul {
 			li 							= a[href="index.html"] 		= "Homepage"
 			li .current_page_item 	= a[href="project.html"]	= "Projects"
@@ -8,8 +8,7 @@ view custom-header
 			li .last 					= a[href="links.html"] 		= "Links"
 		}
 
-
-view custom-content-holder (content)
+@view custom-content-holder (content)
 		div #wrapper = div #wrapper-btm = div #page {
 			div #content {
 				content
@@ -17,17 +16,16 @@ view custom-content-holder (content)
 			div[style="clear: both;"] = "&nbsp;"
 		}
 
-
-view custom-footer
+@view custom-footer
 		div #footer = div #footer-wrap {
-			p #lastupdated = "Last updated on 27-10-2012" ?()
+			p #lastupdated = "Last updated on 27-10-2012"
 			p #legal {
 				"Design by " a[href="http://www.freecsstemplates.org/"] = "Free CSS Templates"
 			}
 		}
 
 
-public view main (content)
+@public @view main (content)
 		html [xmlns="http://www.w3.org/1999/xhtml"] {
 			head {
 				meta[http-equiv="content-type" content="text/html; charset=utf-8"]
@@ -40,31 +38,12 @@ public view main (content)
 			body {
 				div #logo-wrap = div #logo = h1 = a[href="index.html"] = "Fabrice Leal"
 
-				custom-header()
+				custom-header
 
-				custom-content-holder(content)
+				custom-content-holder
 
-				custom-footer()
+				custom-footer
 			}
 		}
 
-
-/*
-	RULES - maybe this goes into another file?
-
-	Setup the @ var with the target 
-*/
-
-404.html 		= main( )
-index.html 		= main( )
-github.html		= main( )
-projects.html	= main( )
-links.html 		= main( )
-
-*.css
-*.js
-*.json
-
-vendors/*
-images/*
 
